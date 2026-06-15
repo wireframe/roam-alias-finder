@@ -23,6 +23,12 @@ export async function findUnlinkedCandidates(seeds, pageTitle) {
     .flatMap((block) => candidatesForBlock(block, seeds));
 }
 
+// Recompute candidates for a single block (e.g. after linking changes its
+// string), avoiding a full-graph rescan. Other blocks' candidates stay valid.
+export function findBlockCandidates(blockUid, string, seeds) {
+  return candidatesForBlock([blockUid, string], seeds);
+}
+
 async function queryReferringBlockStrings(pageTitle) {
   const results = await window.roamAlphaAPI.q(REFERRING_BLOCKS_QUERY, pageTitle);
   return results.map(([string]) => string);

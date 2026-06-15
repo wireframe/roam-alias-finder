@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { collectAliasSeeds, findUnlinkedCandidates } from "../src/roam-data.js";
+import {
+  collectAliasSeeds,
+  findUnlinkedCandidates,
+  findBlockCandidates,
+} from "../src/roam-data.js";
 
 function mockQuery(...resultsPerCall) {
   const q = vi.fn();
@@ -105,5 +109,33 @@ describe("findUnlinkedCandidates", () => {
     const candidates = await findUnlinkedCandidates(["PagerDuty"], "PagerDuty");
 
     expect(candidates).toEqual([]);
+  });
+});
+
+describe("findBlockCandidates", () => {
+  it("returns candidates for a single block without any query", () => {
+    const candidates = findBlockCandidates("uid-1", "pd and pd", ["pd"]);
+
+    expect(candidates).toEqual([
+      { blockUid: "uid-1", string: "pd and pd", aliasText: "pd", range: { start: 0, end: 2 } },
+      { blockUid: "uid-1", string: "pd and pd", aliasText: "pd", range: { start: 7, end: 9 } },
+    ]);
+  });
+
+  it("recomputes correct ranges against an updated (post-link) block string", () => {
+    const candidates = findBlockCandidates(
+      "uid-1",
+      "[pd]([[Page]]) and pd",
+      ["pd"],
+    );
+
+    expect(candidates).toEqual([
+      {
+        blockUid: "uid-1",
+        string: "[pd]([[Page]]) and pd",
+        aliasText: "pd",
+        range: { start: 19, end: 21 },
+      },
+    ]);
   });
 });

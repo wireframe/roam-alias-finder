@@ -3,6 +3,7 @@ export async function linkMatch({ blockUid, string, range, pageTitle }) {
   await window.roamAlphaAPI.updateBlock({
     block: { uid: blockUid, string: next },
   });
+  return next;
 }
 
 function wrapAsAlias(string, range, pageTitle) {

@@ -7,7 +7,11 @@ import {
   isDailyNotePage,
 } from "./page-context.js";
 import { createFinderButton } from "./button.js";
-import { collectAliasSeeds, findUnlinkedCandidates } from "./roam-data.js";
+import {
+  collectAliasSeeds,
+  findUnlinkedCandidates,
+  findBlockCandidates,
+} from "./roam-data.js";
 import { renderResults, renderSearching } from "./results-panel.js";
 import { linkMatch } from "./link-action.js";
 
@@ -15,6 +19,7 @@ const CONTAINER_CLASS = "alias-finder-container";
 const RESULTS_CLASS = "alias-finder-results";
 
 let teardown = null;
+let session = null;
 
 function onload({ extensionAPI }) {
   teardown = createTeardownRegistry();
@@ -62,6 +67,7 @@ function buildResultsContainer() {
 }
 
 function clearButton() {
+  session = null;
   document
     .querySelectorAll(`.${CONTAINER_CLASS}`)
     .forEach((el) => el.remove());
@@ -82,17 +88,30 @@ async function runFind(title, resultsEl) {
   await nextPaint();
   const seeds = await collectAliasSeeds(title);
   const candidates = await findUnlinkedCandidates(seeds, title);
-  renderResults(
-    resultsEl,
-    candidates,
-    (candidate) => onLink(candidate, title, resultsEl),
-    seeds.length,
-  );
+  session = { title, seeds, candidates, resultsEl };
+  renderSession();
 }
 
-async function onLink(candidate, title, resultsEl) {
-  await linkMatch({ ...candidate, pageTitle: title });
-  await runFind(title, resultsEl);
+function renderSession() {
+  const { resultsEl, candidates, seeds } = session;
+  renderResults(resultsEl, candidates, onLink, seeds.length);
+}
+
+// Linking only changes one block, so recompute just that block's candidates
+// locally and re-render — no full-graph rescan.
+async function onLink(candidate) {
+  const nextString = await linkMatch({
+    ...candidate,
+    pageTitle: session.title,
+  });
+  session.candidates = refreshedCandidates(candidate.blockUid, nextString);
+  renderSession();
+}
+
+function refreshedCandidates(blockUid, nextString) {
+  const unaffected = session.candidates.filter((c) => c.blockUid !== blockUid);
+  const fresh = findBlockCandidates(blockUid, nextString, session.seeds);
+  return [...unaffected, ...fresh];
 }
 
 function nextPaint() {

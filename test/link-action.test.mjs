@@ -41,4 +41,17 @@ describe("linkMatch", () => {
       block: { uid: "b1", string: "pd then [pd]([[PagerDuty]]) again" },
     });
   });
+
+  it("returns the new block string so callers can refresh without a re-query", async () => {
+    mockUpdateBlock();
+
+    const next = await linkMatch({
+      blockUid: "b1",
+      string: "we use pagerduty daily",
+      range: { start: 7, end: 16 },
+      pageTitle: "PagerDuty",
+    });
+
+    expect(next).toBe("we use [pagerduty]([[PagerDuty]]) daily");
+  });
 });
