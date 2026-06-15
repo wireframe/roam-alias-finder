@@ -6,7 +6,7 @@ Find the places you *meant* to link but never did. Alias Finder scans your graph
 
 ## Why
 
-Roam aliases let you write `[the pager tool]([[PagerDuty]])` so natural prose still links to the right page. But once you've used an alias a few times, older notes are full of the same words sitting as plain text, invisible to backlinks. Finding and fixing them by hand is tedious.
+Roam aliases let you write `[slip-box]([[Zettelkasten]])` so natural prose still links to the right page. But once you've used an alias a few times, older notes are full of the same words sitting as plain text, invisible to backlinks. Finding and fixing them by hand is tedious.
 
 Alias Finder learns the aliases you already use for a page and surfaces every unlinked mention across the graph, so you can wire them up in seconds.
 
@@ -30,7 +30,7 @@ Click it and Alias Finder:
 Matching is deliberately careful, because it writes to your graph:
 
 - **Whole words only** — `OKRS` never matches inside `weorks`.
-- **Case‑insensitive** — `pagerduty` matches the alias `PagerDuty`; your original casing is kept when linking.
+- **Case‑insensitive** — `Zettel` and `zettel` both match the alias `zettel`; your original casing is kept when linking.
 - **Skips text that's already linked** — occurrences inside `[[page links]]`, `((block refs))`, `#tags`, and existing `[alias]([[page]])` links are ignored.
 - **Skips URLs** — matches inside `http(s)://…` and `www.…` are ignored.
 - **Skips noise** — single‑character aliases (`*`) and footnote‑style numbers (`1`, `2`, …) are never used as search terms.
