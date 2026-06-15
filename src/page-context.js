@@ -4,6 +4,10 @@ export function getCurrentPageTitle() {
   return titleEl.textContent.trim();
 }
 
+export function isDailyNotePage(title) {
+  return Boolean(window.roamAlphaAPI?.util?.pageTitleToDate?.(title));
+}
+
 export function getPageBody() {
   return (
     document.querySelector(".rm-article-wrapper") ||
