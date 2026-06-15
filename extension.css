@@ -82,6 +82,10 @@
 /* Disclosure caret, mirroring Roam's expand/collapse groups: points down when
    expanded, rotates to point right when the section is collapsed. */
 .alias-finder-caret {
+  /* content-box is required: Roam sets box-sizing: border-box globally, which
+     would draw the triangle borders inside a 0x0 box and render nothing. */
+  box-sizing: content-box;
+  display: inline-block;
   width: 0;
   height: 0;
   flex: none;
