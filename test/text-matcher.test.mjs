@@ -99,4 +99,31 @@ describe("findMatches guard rules", () => {
     expect(blockString.slice(ranges[0].start, ranges[0].end)).toBe("PagerDuty");
     expect(ranges[0].start).toBeGreaterThan(18);
   });
+
+  it("returns only the plain occurrence when an alias also appears inside a bare tag", () => {
+    const blockString = "#PagerDuty and PagerDuty here";
+    const ranges = findMatches(blockString, "PagerDuty");
+
+    expect(ranges).toHaveLength(1);
+    expect(blockString.slice(ranges[0].start, ranges[0].end)).toBe("PagerDuty");
+    expect(ranges[0].start).toBeGreaterThan(10);
+  });
+
+  it("excludes a match inside a bare tag (case-insensitive)", () => {
+    const blockString = "#pagerduty and PagerDuty here";
+    const ranges = findMatches(blockString, "PagerDuty");
+
+    expect(ranges).toHaveLength(1);
+    expect(blockString.slice(ranges[0].start, ranges[0].end)).toBe("PagerDuty");
+    expect(ranges[0].start).toBeGreaterThan(10);
+  });
+
+  it("excludes a match inside a multi-word tag form #[[Multi Word]]", () => {
+    const blockString = "#[[Multi Word]] and Multi Word here";
+    const ranges = findMatches(blockString, "Multi Word");
+
+    expect(ranges).toHaveLength(1);
+    expect(blockString.slice(ranges[0].start, ranges[0].end)).toBe("Multi Word");
+    expect(ranges[0].start).toBeGreaterThan(15);
+  });
 });

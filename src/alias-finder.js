@@ -2,12 +2,13 @@ import { createTeardownRegistry } from "./teardown-registry.mjs";
 import {
   observePageChanges,
   getPageBody,
+  getReferencesAnchor,
   getCurrentPageTitle,
   isDailyNotePage,
 } from "./page-context.js";
 import { createFinderButton } from "./button.js";
 import { collectAliasSeeds, findUnlinkedCandidates } from "./roam-data.js";
-import { renderResults } from "./results-panel.js";
+import { renderResults, renderSearching } from "./results-panel.js";
 import { linkMatch } from "./link-action.js";
 
 const CONTAINER_CLASS = "alias-finder-container";
@@ -32,17 +33,23 @@ function mountButton() {
   clearButton();
   const title = getCurrentPageTitle();
   if (!title || isDailyNotePage(title)) return;
-  const pageBody = getPageBody();
-  if (!pageBody) return;
-  pageBody.appendChild(buildButtonContainer());
+  const anchor = getResultsAnchor();
+  if (!anchor) return;
+  anchor.appendChild(buildButtonContainer());
+}
+
+function getResultsAnchor() {
+  return getReferencesAnchor() || getPageBody();
 }
 
 function buildButtonContainer() {
   const container = document.createElement("div");
-  container.className = CONTAINER_CLASS;
+  container.className = `${CONTAINER_CLASS} rm-ref-page-view`;
   const results = buildResultsContainer();
   container.appendChild(
-    createFinderButton("Find aliases", () => onFindClick(results)),
+    createFinderButton("Find unlinked aliases", (event) =>
+      onFindClick(event.currentTarget, results),
+    ),
   );
   container.appendChild(results);
   return container;
@@ -60,17 +67,23 @@ function clearButton() {
     .forEach((el) => el.remove());
 }
 
-async function onFindClick(resultsEl) {
+async function onFindClick(button, resultsEl) {
   const title = getCurrentPageTitle();
   if (!title) return;
+  button.disabled = true;
   await runFind(title, resultsEl);
+  button.disabled = false;
 }
 
 async function runFind(title, resultsEl) {
+  renderSearching(resultsEl);
   const seeds = await collectAliasSeeds(title);
   const candidates = await findUnlinkedCandidates(seeds, title);
-  renderResults(resultsEl, candidates, (candidate) =>
-    onLink(candidate, title, resultsEl),
+  renderResults(
+    resultsEl,
+    candidates,
+    (candidate) => onLink(candidate, title, resultsEl),
+    seeds.length,
   );
 }
 

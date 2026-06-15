@@ -8,6 +8,11 @@ export function isDailyNotePage(title) {
   return Boolean(window.roamAlphaAPI?.util?.pageTitleToDate?.(title));
 }
 
+export function getReferencesAnchor() {
+  const refs = document.querySelector(".rm-reference-main");
+  return refs ? refs.parentElement : null;
+}
+
 export function getPageBody() {
   return (
     document.querySelector(".rm-article-wrapper") ||

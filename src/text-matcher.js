@@ -4,6 +4,8 @@ const EXCLUDED_SPAN_PATTERNS = [
   /\[\[[^\]]+\]\]/g, // page link [[...]]
   /\(\([^)]+\)\)/g, // block ref ((...)) — intentionally any ((...)), lenient to err toward safe over-exclusion since the tool writes to the user's graph
   /\[[^\]]+\]\(\[\[[^\]]+\]\]\)/g, // existing alias [...]([[...]])
+  /#\[\[[^\]]+\]\]/g, // tag form #[[Multi Word]]
+  /#[\w-]+/g, // bare tag #Word
 ];
 
 export function findMatches(blockString, aliasText) {

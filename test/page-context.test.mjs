@@ -1,5 +1,6 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { isDailyNotePage } from "../src/page-context.js";
+import { isDailyNotePage, getReferencesAnchor } from "../src/page-context.js";
 
 function mockPageTitleToDate(impl) {
   const pageTitleToDate = vi.fn(impl);
@@ -34,5 +35,25 @@ describe("isDailyNotePage", () => {
     mockPageTitleToDate(() => null);
 
     expect(isDailyNotePage("")).toBe(false);
+  });
+});
+
+describe("getReferencesAnchor", () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it("returns the parent of .rm-reference-main when present", () => {
+    const parent = document.createElement("div");
+    const refs = document.createElement("div");
+    refs.className = "rm-reference-main";
+    parent.appendChild(refs);
+    document.body.appendChild(parent);
+
+    expect(getReferencesAnchor()).toBe(parent);
+  });
+
+  it("returns null when .rm-reference-main is absent", () => {
+    expect(getReferencesAnchor()).toBeNull();
   });
 });
