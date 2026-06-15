@@ -9,7 +9,13 @@ export function isDailyNotePage(title) {
 }
 
 export function getReferencesAnchor() {
-  const refs = document.querySelector(".rm-reference-main");
+  const article = document.querySelector(".roam-article");
+  if (!article) return null;
+  // Use the page's own references section, not one rendered inside an embed or
+  // query in the page body (those appear earlier in the DOM).
+  const refs = [...article.querySelectorAll(".rm-reference-main")].find(
+    (el) => !el.closest(".rm-embed-container, .rm-query"),
+  );
   return refs ? refs.parentElement : null;
 }
 

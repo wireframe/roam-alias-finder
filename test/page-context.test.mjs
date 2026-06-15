@@ -43,17 +43,47 @@ describe("getReferencesAnchor", () => {
     document.body.replaceChildren();
   });
 
-  it("returns the parent of .rm-reference-main when present", () => {
+  it("returns the parent of the page's .rm-reference-main when present", () => {
+    const article = document.createElement("div");
+    article.className = "roam-article";
     const parent = document.createElement("div");
     const refs = document.createElement("div");
     refs.className = "rm-reference-main";
     parent.appendChild(refs);
-    document.body.appendChild(parent);
+    article.appendChild(parent);
+    document.body.appendChild(article);
 
     expect(getReferencesAnchor()).toBe(parent);
   });
 
+  it("ignores a .rm-reference-main rendered inside an embed and uses the page's own", () => {
+    const article = document.createElement("div");
+    article.className = "roam-article";
+
+    // An embedded query/page in the body, with its own references, earlier in the DOM.
+    const embed = document.createElement("div");
+    embed.className = "rm-embed-container";
+    const embeddedRefs = document.createElement("div");
+    embeddedRefs.className = "rm-reference-main";
+    embed.appendChild(embeddedRefs);
+    article.appendChild(embed);
+
+    // The page's own references section, lower in the DOM.
+    const pageRefsParent = document.createElement("div");
+    const pageRefs = document.createElement("div");
+    pageRefs.className = "rm-reference-main";
+    pageRefsParent.appendChild(pageRefs);
+    article.appendChild(pageRefsParent);
+
+    document.body.appendChild(article);
+
+    expect(getReferencesAnchor()).toBe(pageRefsParent);
+  });
+
   it("returns null when .rm-reference-main is absent", () => {
+    const article = document.createElement("div");
+    article.className = "roam-article";
+    document.body.appendChild(article);
     expect(getReferencesAnchor()).toBeNull();
   });
 });
