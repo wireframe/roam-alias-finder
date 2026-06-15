@@ -1,0 +1,16 @@
+{
+  "name": "roam-alias-finder",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "node bin/build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "jsdom": "^29.1.1",
+    "vitest": "^1.6.0"
+  },
+  "license": "MIT"
+}

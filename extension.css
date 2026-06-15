@@ -1,0 +1,9 @@
+.alias-finder-container {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+}
+
+.alias-finder-btn {
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
