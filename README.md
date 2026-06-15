@@ -2,7 +2,7 @@
 
 Find the places you *meant* to link but never did. Alias Finder scans your graph for plain‑text mentions of a page's existing aliases and lets you turn each one into a proper link with a single click. No alias list to maintain, no setup.
 
-![Alias Finder demo](https://raw.githubusercontent.com/wireframe/roam-alias-finder/main/screenshots/demo.gif)
+![Alias Finder grouping unlinked alias mentions below a page's references, each with a one-click Link button](https://raw.githubusercontent.com/wireframe/roam-alias-finder/main/screenshots/screenshot.png)
 
 ## Why
 
@@ -14,16 +14,12 @@ Alias Finder learns the aliases you already use for a page and surfaces every un
 
 A **Find unlinked aliases** button appears at the bottom of every real page, right below Roam's Unlinked References section. It only shows on real pages — never on daily notes.
 
-![Find unlinked aliases button below Unlinked References](https://raw.githubusercontent.com/wireframe/roam-alias-finder/main/screenshots/find-button.png)
-
 Click it and Alias Finder:
 
 1. Reads the page's **existing aliases** — every `[text]([[ThisPage]])` already in your graph — and uses that text as the search terms. Nothing to configure.
 2. Scans the whole graph for **unlinked, plain‑text occurrences** of those terms.
 3. Groups the results **by alias** under collapsible, alphabetically‑sorted headers with a match count, and highlights the matched text in each block.
 4. Lets you **link any match** with one click — it wraps the text as `[text]([[ThisPage]])`, preserving your original casing, and removes the row.
-
-![Grouped results with per-row link buttons](https://raw.githubusercontent.com/wireframe/roam-alias-finder/main/screenshots/results.png)
 
 ### Match rules
 
