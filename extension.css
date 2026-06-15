@@ -79,24 +79,26 @@
   background: rgba(138, 155, 168, 0.12);
 }
 
-/* Disclosure caret, mirroring Roam's expand/collapse groups: points down when
-   expanded, rotates to point right when the section is collapsed. */
+/* Disclosure caret, mirroring Roam's expand/collapse groups: a glyph (reliable
+   under Roam's global styles) that points down when expanded and rotates to
+   point right when the section is collapsed. */
 .alias-finder-caret {
-  /* content-box is required: Roam sets box-sizing: border-box globally, which
-     would draw the triangle borders inside a 0x0 box and render nothing. */
-  box-sizing: content-box;
   display: inline-block;
-  width: 0;
-  height: 0;
   flex: none;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid #5c7080;
+  width: 0.8em;
+  color: #5c7080;
+  font-size: 0.7rem;
+  line-height: 1;
+  text-align: center;
   transition: transform 0.1s ease;
 }
 
+.alias-finder-caret::before {
+  content: "\25BE"; /* ▾ down-pointing triangle */
+}
+
 .bp3-dark .alias-finder-caret {
-  border-top-color: var(--dark-gray5, #a7b6c2);
+  color: var(--dark-gray5, #a7b6c2);
 }
 
 .alias-finder-section.collapsed .alias-finder-caret {

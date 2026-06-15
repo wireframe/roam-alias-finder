@@ -12,6 +12,10 @@ function candidate(overrides) {
   };
 }
 
+function render(container, overrides) {
+  renderResults(container, { candidates: [], onLink: () => {}, ...overrides });
+}
+
 let container;
 
 beforeEach(() => {
@@ -35,7 +39,7 @@ describe("renderSearching", () => {
 
 describe("renderResults empty state", () => {
   it("shows a no-matches message and no sections when candidates is empty", () => {
-    renderResults(container, [], () => {});
+    render(container, { candidates: [] });
 
     expect(container.querySelectorAll(".alias-finder-section")).toHaveLength(0);
     const empty = container.querySelector(".alias-finder-empty");
@@ -43,21 +47,21 @@ describe("renderResults empty state", () => {
   });
 
   it("includes the seed count suffix when seedCount > 0", () => {
-    renderResults(container, [], () => {}, 4);
+    render(container, { seedCount: 4 });
 
     const empty = container.querySelector(".alias-finder-empty");
     expect(empty.textContent).toBe("No unlinked matches found (4 aliases checked)");
   });
 
   it("uses the singular noun when exactly one alias was checked", () => {
-    renderResults(container, [], () => {}, 1);
+    render(container, { seedCount: 1 });
 
     const empty = container.querySelector(".alias-finder-empty");
     expect(empty.textContent).toBe("No unlinked matches found (1 alias checked)");
   });
 
   it("omits the suffix when seedCount is 0 or undefined", () => {
-    renderResults(container, [], () => {}, 0);
+    render(container, { seedCount: 0 });
     expect(container.querySelector(".alias-finder-empty").textContent).toBe(
       "No unlinked matches found",
     );
@@ -66,25 +70,25 @@ describe("renderResults empty state", () => {
 
 describe("renderResults grouping", () => {
   it("renders one section per alias group", () => {
-    const candidates = [
-      candidate({ aliasText: "pd" }),
-      candidate({ aliasText: "pd", blockUid: "b2" }),
-      candidate({ aliasText: "okr", blockUid: "b3" }),
-    ];
-
-    renderResults(container, candidates, () => {});
+    render(container, {
+      candidates: [
+        candidate({ aliasText: "pd" }),
+        candidate({ aliasText: "pd", blockUid: "b2" }),
+        candidate({ aliasText: "okr", blockUid: "b3" }),
+      ],
+    });
 
     expect(container.querySelectorAll(".alias-finder-section")).toHaveLength(2);
   });
 
   it("sorts alias group sections alphabetically, case-insensitively", () => {
-    const candidates = [
-      candidate({ aliasText: "Zebra" }),
-      candidate({ aliasText: "apple" }),
-      candidate({ aliasText: "Mango" }),
-    ];
-
-    renderResults(container, candidates, () => {});
+    render(container, {
+      candidates: [
+        candidate({ aliasText: "Zebra" }),
+        candidate({ aliasText: "apple" }),
+        candidate({ aliasText: "Mango" }),
+      ],
+    });
 
     const titles = [
       ...container.querySelectorAll(".alias-finder-section-title"),
@@ -93,24 +97,24 @@ describe("renderResults grouping", () => {
   });
 
   it("shows a count badge equal to the group size", () => {
-    const candidates = [
-      candidate({ aliasText: "pd" }),
-      candidate({ aliasText: "pd", blockUid: "b2" }),
-      candidate({ aliasText: "pd", blockUid: "b3" }),
-    ];
-
-    renderResults(container, candidates, () => {});
+    render(container, {
+      candidates: [
+        candidate({ aliasText: "pd" }),
+        candidate({ aliasText: "pd", blockUid: "b2" }),
+        candidate({ aliasText: "pd", blockUid: "b3" }),
+      ],
+    });
 
     expect(container.querySelector(".alias-finder-count").textContent).toBe("3");
   });
 
   it("renders one row per candidate in a group", () => {
-    const candidates = [
-      candidate({ aliasText: "pd" }),
-      candidate({ aliasText: "pd", blockUid: "b2" }),
-    ];
-
-    renderResults(container, candidates, () => {});
+    render(container, {
+      candidates: [
+        candidate({ aliasText: "pd" }),
+        candidate({ aliasText: "pd", blockUid: "b2" }),
+      ],
+    });
 
     expect(container.querySelectorAll(".alias-finder-row")).toHaveLength(2);
   });
@@ -118,7 +122,7 @@ describe("renderResults grouping", () => {
 
 describe("renderResults collapsible sections", () => {
   it("starts expanded and toggles the collapsed class when the header is clicked", () => {
-    renderResults(container, [candidate()], () => {});
+    render(container, { candidates: [candidate()] });
 
     const section = container.querySelector(".alias-finder-section");
     const header = container.querySelector(".alias-finder-section-header");
@@ -132,20 +136,38 @@ describe("renderResults collapsible sections", () => {
   });
 
   it("renders a disclosure caret in each section header", () => {
-    renderResults(container, [candidate()], () => {});
+    render(container, { candidates: [candidate()] });
 
     const header = container.querySelector(".alias-finder-section-header");
     expect(header.querySelector(".alias-finder-caret")).not.toBeNull();
+  });
+
+  it("preserves collapsed state across re-renders via the shared set", () => {
+    const collapsed = new Set();
+    render(container, { candidates: [candidate()], collapsed });
+
+    container
+      .querySelector(".alias-finder-section-header")
+      .dispatchEvent(new Event("click"));
+    expect(collapsed.has("pd")).toBe(true);
+
+    // Re-render (e.g. after linking) with the same shared set.
+    render(container, { candidates: [candidate()], collapsed });
+    expect(
+      container
+        .querySelector(".alias-finder-section")
+        .classList.contains("collapsed"),
+    ).toBe(true);
   });
 });
 
 describe("renderResults highlight", () => {
   it("wraps only the matched substring in .unlink-word and keeps context outside it", () => {
-    renderResults(
-      container,
-      [candidate({ string: "we use pd daily", range: { start: 7, end: 9 } })],
-      () => {},
-    );
+    render(container, {
+      candidates: [
+        candidate({ string: "we use pd daily", range: { start: 7, end: 9 } }),
+      ],
+    });
 
     const highlight = container.querySelector(".unlink-word");
     expect(highlight.textContent).toBe("pd");
@@ -155,21 +177,21 @@ describe("renderResults highlight", () => {
   });
 
   it("preserves the original casing of the matched substring", () => {
-    renderResults(
-      container,
-      [candidate({ string: "set up PagerDuty alerts", range: { start: 7, end: 16 } })],
-      () => {},
-    );
+    render(container, {
+      candidates: [
+        candidate({ string: "set up PagerDuty alerts", range: { start: 7, end: 16 } }),
+      ],
+    });
 
     expect(container.querySelector(".unlink-word").textContent).toBe("PagerDuty");
   });
 
   it("renders block content as text, not HTML", () => {
-    renderResults(
-      container,
-      [candidate({ string: "danger <b>bold</b>", range: { start: 0, end: 6 } })],
-      () => {},
-    );
+    render(container, {
+      candidates: [
+        candidate({ string: "danger <b>bold</b>", range: { start: 0, end: 6 } }),
+      ],
+    });
 
     const row = container.querySelector(".alias-finder-row");
     expect(row.querySelector("b")).toBeNull();
@@ -183,7 +205,7 @@ describe("renderResults link button", () => {
     stale.className = "stale";
     container.appendChild(stale);
 
-    renderResults(container, [candidate()], () => {});
+    render(container, { candidates: [candidate()] });
 
     expect(container.querySelectorAll(".stale")).toHaveLength(0);
     expect(container.querySelectorAll(".alias-finder-row")).toHaveLength(1);
@@ -193,7 +215,7 @@ describe("renderResults link button", () => {
     const only = candidate();
     const onLink = vi.fn();
 
-    renderResults(container, [only], onLink);
+    render(container, { candidates: [only], onLink });
     const button = container.querySelector(".alias-finder-link-btn");
     button.dispatchEvent(new Event("click"));
 

@@ -88,13 +88,18 @@ async function runFind(title, resultsEl) {
   await nextPaint();
   const seeds = await collectAliasSeeds(title);
   const candidates = await findUnlinkedCandidates(seeds, title);
-  session = { title, seeds, candidates, resultsEl };
+  session = { title, seeds, candidates, resultsEl, collapsed: new Set() };
   renderSession();
 }
 
 function renderSession() {
-  const { resultsEl, candidates, seeds } = session;
-  renderResults(resultsEl, candidates, onLink, seeds.length);
+  const { resultsEl, candidates, seeds, collapsed } = session;
+  renderResults(resultsEl, {
+    candidates,
+    onLink,
+    seedCount: seeds.length,
+    collapsed,
+  });
 }
 
 // Linking only changes one block, so recompute just that block's candidates

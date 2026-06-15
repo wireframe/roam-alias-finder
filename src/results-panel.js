@@ -3,14 +3,17 @@ export function renderSearching(container) {
   container.appendChild(statusMessage());
 }
 
-export function renderResults(container, candidates, onLink, seedCount) {
+export function renderResults(
+  container,
+  { candidates, onLink, seedCount, collapsed = new Set() },
+) {
   container.replaceChildren();
   if (candidates.length === 0) {
     container.appendChild(emptyMessage(seedCount));
     return;
   }
   sortedGroups(candidates).forEach(([aliasText, group]) => {
-    container.appendChild(buildSection(aliasText, group, onLink));
+    container.appendChild(buildSection(aliasText, group, onLink, collapsed));
   });
 }
 
@@ -46,22 +49,32 @@ function sortedGroups(candidates) {
   );
 }
 
-function buildSection(aliasText, group, onLink) {
+function buildSection(aliasText, group, onLink, collapsed) {
   const section = document.createElement("div");
   section.className = "alias-finder-section";
-  section.appendChild(sectionHeader(aliasText, group.length, section));
+  if (collapsed.has(aliasText)) section.classList.add("collapsed");
+  section.appendChild(sectionHeader(aliasText, group.length, section, collapsed));
   section.appendChild(sectionBody(group, onLink));
   return section;
 }
 
-function sectionHeader(aliasText, count, section) {
+function sectionHeader(aliasText, count, section, collapsed) {
   const header = document.createElement("div");
   header.className = "alias-finder-section-header";
   header.appendChild(caretIcon());
   header.appendChild(sectionTitle(aliasText));
   header.appendChild(countBadge(count));
-  header.addEventListener("click", () => section.classList.toggle("collapsed"));
+  header.addEventListener("click", () =>
+    toggleCollapse(section, aliasText, collapsed),
+  );
   return header;
+}
+
+// Toggle the DOM class and mirror it into the shared collapsed set, so the
+// state survives a full re-render (e.g. after linking a match).
+function toggleCollapse(section, aliasText, collapsed) {
+  if (section.classList.toggle("collapsed")) collapsed.add(aliasText);
+  else collapsed.delete(aliasText);
 }
 
 function caretIcon() {
