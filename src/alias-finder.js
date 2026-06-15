@@ -11,6 +11,7 @@ import {
   collectAliasSeeds,
   findUnlinkedCandidates,
   findBlockCandidates,
+  isExistingPage,
 } from "./roam-data.js";
 import { renderResults, renderSearching } from "./results-panel.js";
 import { linkMatch } from "./link-action.js";
@@ -37,7 +38,7 @@ function onunload() {
 function mountButton() {
   clearButton();
   const title = getCurrentPageTitle();
-  if (!title || isDailyNotePage(title)) return;
+  if (!title || isDailyNotePage(title) || !isExistingPage(title)) return;
   const anchor = getResultsAnchor();
   if (!anchor) return;
   anchor.appendChild(buildButtonContainer());

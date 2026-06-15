@@ -3,6 +3,7 @@ import {
   collectAliasSeeds,
   findUnlinkedCandidates,
   findBlockCandidates,
+  isExistingPage,
 } from "../src/roam-data.js";
 
 function mockQuery(...resultsPerCall) {
@@ -109,6 +110,18 @@ describe("findUnlinkedCandidates", () => {
     const candidates = await findUnlinkedCandidates(["PagerDuty"], "PagerDuty");
 
     expect(candidates).toEqual([]);
+  });
+});
+
+describe("isExistingPage", () => {
+  it("returns true when a page with the exact title exists", () => {
+    globalThis.window = { roamAlphaAPI: { q: vi.fn().mockReturnValue([["uid-1"]]) } };
+    expect(isExistingPage("Zettelkasten")).toBe(true);
+  });
+
+  it("returns false when no page has the title (e.g. a zoomed-in block)", () => {
+    globalThis.window = { roamAlphaAPI: { q: vi.fn().mockReturnValue([]) } };
+    expect(isExistingPage("every zettel should hold exactly one idea")).toBe(false);
   });
 });
 

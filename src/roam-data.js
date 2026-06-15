@@ -11,6 +11,15 @@ const REFERRING_BLOCKS_QUERY =
 const ALL_BLOCKS_QUERY =
   "[:find ?uid ?s :where [?b :block/uid ?uid] [?b :block/string ?s]]";
 
+const PAGE_TITLE_QUERY =
+  "[:find ?uid :in $ ?title :where [?e :node/title ?title] [?e :block/uid ?uid]]";
+
+// True only when a real page has this exact title. Lets the button distinguish
+// a page view from a zoomed-in block (whose title text isn't a page title).
+export function isExistingPage(title) {
+  return window.roamAlphaAPI.q(PAGE_TITLE_QUERY, title).length > 0;
+}
+
 export async function collectAliasSeeds(pageTitle) {
   const blockStrings = await queryReferringBlockStrings(pageTitle);
   const aliasTexts = blockStrings.flatMap((string) =>
