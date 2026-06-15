@@ -35,6 +35,17 @@ describe("collectAliasSeeds", () => {
     expect(seeds).toEqual(["pd"]);
   });
 
+  it("dedupes case-insensitively, keeping the first-seen casing", async () => {
+    mockQuery([
+      ["[She]([[Sheila]]) leads"],
+      ["and [she]([[Sheila]]) again"],
+    ]);
+
+    const seeds = await collectAliasSeeds("Sheila");
+
+    expect(seeds).toEqual(["She"]);
+  });
+
   it("drops single-character and all-digit seeds", async () => {
     mockQuery([
       ["[*]([[PagerDuty]]) and [1]([[PagerDuty]]) and [pd]([[PagerDuty]])"],

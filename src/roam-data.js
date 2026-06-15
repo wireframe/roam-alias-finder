@@ -39,8 +39,11 @@ function distinctUsableSeeds(aliasTexts) {
 
 function isFreshUsableSeed(text, seen) {
   const seed = text.trim();
-  if (isUnusableSeed(seed) || seen.has(seed)) return false;
-  seen.add(seed);
+  // Dedupe case-insensitively: matching is case-insensitive, so "She" and
+  // "she" would otherwise yield duplicate groups with identical results.
+  const key = seed.toLowerCase();
+  if (isUnusableSeed(seed) || seen.has(key)) return false;
+  seen.add(key);
   return true;
 }
 

@@ -77,6 +77,9 @@ async function onFindClick(button, resultsEl) {
 
 async function runFind(title, resultsEl) {
   renderSearching(resultsEl);
+  // Let the browser paint the "Searching…" state before the synchronous
+  // full-graph scan blocks the main thread.
+  await nextPaint();
   const seeds = await collectAliasSeeds(title);
   const candidates = await findUnlinkedCandidates(seeds, title);
   renderResults(
@@ -90,6 +93,16 @@ async function runFind(title, resultsEl) {
 async function onLink(candidate, title, resultsEl) {
   await linkMatch({ ...candidate, pageTitle: title });
   await runFind(title, resultsEl);
+}
+
+function nextPaint() {
+  return new Promise((resolve) => {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    } else {
+      setTimeout(resolve, 0);
+    }
+  });
 }
 
 export default { onload, onunload };
