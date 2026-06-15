@@ -74,6 +74,20 @@ describe("findMatches guard rules", () => {
     expect(findMatches(blockString, "PagerDuty")).toEqual([]);
   });
 
+  it("excludes a match inside an external markdown link label", () => {
+    const blockString = "[Q4 vision and OKRS](https://example.com/page)";
+
+    expect(findMatches(blockString, "OKRs")).toEqual([]);
+  });
+
+  it("still matches a standalone occurrence alongside a markdown link", () => {
+    const blockString = "see [the doc](https://x.com/p) about OKRs today";
+
+    const matches = findMatches(blockString, "OKRs");
+    expect(matches).toHaveLength(1);
+    expect(blockString.slice(matches[0].start, matches[0].end)).toBe("OKRs");
+  });
+
   it("returns an empty array for a single-character alias", () => {
     expect(findMatches("a * b", "*")).toEqual([]);
   });

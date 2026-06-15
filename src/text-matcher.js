@@ -3,7 +3,7 @@ const EXCLUDED_SPAN_PATTERNS = [
   /\bwww\.[^\s)]+/g, // bare www. URL (no scheme)
   /\[\[[^\]]+\]\]/g, // page link [[...]]
   /\(\([^)]+\)\)/g, // block ref ((...)) — intentionally any ((...)), lenient to err toward safe over-exclusion since the tool writes to the user's graph
-  /\[[^\]]+\]\(\[\[[^\]]+\]\]\)/g, // existing alias [...]([[...]])
+  /\[[^\]]+\]\([^)]+\)/g, // any markdown link [label](target) — Roam aliases and external links alike; never match inside the label or wrapping would corrupt the link
   /#\[\[[^\]]+\]\]/g, // tag form #[[Multi Word]]
   /#[\w-]+/g, // bare tag #Word
 ];
