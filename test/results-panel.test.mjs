@@ -130,6 +130,13 @@ describe("renderResults collapsible sections", () => {
     header.dispatchEvent(new Event("click"));
     expect(section.classList.contains("collapsed")).toBe(false);
   });
+
+  it("renders a disclosure caret in each section header", () => {
+    renderResults(container, [candidate()], () => {});
+
+    const header = container.querySelector(".alias-finder-section-header");
+    expect(header.querySelector(".alias-finder-caret")).not.toBeNull();
+  });
 });
 
 describe("renderResults highlight", () => {

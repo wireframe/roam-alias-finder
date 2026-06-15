@@ -57,10 +57,17 @@ function buildSection(aliasText, group, onLink) {
 function sectionHeader(aliasText, count, section) {
   const header = document.createElement("div");
   header.className = "alias-finder-section-header";
+  header.appendChild(caretIcon());
   header.appendChild(sectionTitle(aliasText));
   header.appendChild(countBadge(count));
   header.addEventListener("click", () => section.classList.toggle("collapsed"));
   return header;
+}
+
+function caretIcon() {
+  const caret = document.createElement("span");
+  caret.className = "alias-finder-caret";
+  return caret;
 }
 
 function sectionTitle(aliasText) {
