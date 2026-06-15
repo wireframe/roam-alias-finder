@@ -1,5 +1,9 @@
 import { parseAliasTextsForPage } from "./alias-parser.js";
-import { findMatches } from "./text-matcher.js";
+import {
+  matchSeed,
+  findExcludedSpans,
+  isUnmatchableSeed,
+} from "./text-matcher.js";
 
 const REFERRING_BLOCKS_QUERY =
   "[:find ?s :in $ ?title :where [?p :node/title ?title] [?b :block/refs ?p] [?b :block/string ?s]]";
@@ -48,13 +52,9 @@ function isFreshUsableSeed(text, seen) {
   // Dedupe case-insensitively: matching is case-insensitive, so "She" and
   // "she" would otherwise yield duplicate groups with identical results.
   const key = seed.toLowerCase();
-  if (isUnusableSeed(seed) || seen.has(key)) return false;
+  if (isUnmatchableSeed(seed) || seen.has(key)) return false;
   seen.add(key);
   return true;
-}
-
-function isUnusableSeed(seed) {
-  return seed.length <= 1 || /^\d+$/.test(seed);
 }
 
 function isPageDefinition([, string], pageTitle) {
@@ -62,8 +62,9 @@ function isPageDefinition([, string], pageTitle) {
 }
 
 function candidatesForBlock([uid, string], seeds) {
+  const excludedSpans = findExcludedSpans(string);
   return seeds.flatMap((seed) =>
-    findMatches(string, seed).map((range) => ({
+    matchSeed(string, seed, excludedSpans).map((range) => ({
       blockUid: uid,
       string,
       aliasText: seed,

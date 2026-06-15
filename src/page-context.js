@@ -30,7 +30,7 @@ export function observePageChanges(onChange) {
     const title = getCurrentPageTitle();
     if (title && title !== lastTitle) {
       lastTitle = title;
-      onChange(title);
+      onChange();
     }
   }, 200);
 

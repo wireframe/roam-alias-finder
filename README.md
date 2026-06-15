@@ -56,14 +56,16 @@ npm run build   # bundle src/ into extension.js
 ## Architecture
 
 The extension entry point (`src/alias-finder.js`) implements the Roam Depot
-`onload` / `onunload` lifecycle. On load it injects a "Find aliases" button at
-the bottom of the current page and re-injects it whenever the user navigates,
-driven by a debounced `MutationObserver` in `src/page-context.js`. All side
-effects (the observer and the injected DOM) are registered with a teardown
-registry (`src/teardown-registry.mjs`) so `onunload` removes them cleanly. The
-button itself is built by a pure helper in `src/button.js`. The click handler is
-currently a stub and will be wired to the real alias-finding behavior in a later
-phase.
+`onload` / `onunload` lifecycle. On load it injects a "Find unlinked aliases"
+button below the references section of the current real page (not daily notes)
+and re-injects it whenever the user navigates, driven by a debounced
+`MutationObserver` in `src/page-context.js`. All side effects (the observer and
+the injected DOM) are registered with a teardown registry
+(`src/teardown-registry.mjs`) so `onunload` removes them cleanly. Clicking the
+button collects the page's existing alias texts (`src/roam-data.js`), scans the
+graph for unlinked occurrences via the pure matcher (`src/text-matcher.js`), and
+renders grouped, collapsible results (`src/results-panel.js`); each row's link
+action wraps the text as `[text]([[Page]])` (`src/link-action.js`).
 
 ## Related Documents
 

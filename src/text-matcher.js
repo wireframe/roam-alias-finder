@@ -9,15 +9,19 @@ const EXCLUDED_SPAN_PATTERNS = [
 ];
 
 export function findMatches(blockString, aliasText) {
-  const seed = aliasText.trim();
+  return matchSeed(blockString, aliasText.trim(), findExcludedSpans(blockString));
+}
+
+// Match one already-trimmed seed against a block, given its excluded spans.
+// Callers scanning many seeds over one block compute the spans once and reuse.
+export function matchSeed(blockString, seed, excludedSpans) {
   if (isUnmatchableSeed(seed)) return [];
-  const excludedSpans = findExcludedSpans(blockString);
   return rawMatches(blockString, seed).filter(
     (match) => !overlapsAnySpan(match, excludedSpans),
   );
 }
 
-function isUnmatchableSeed(seed) {
+export function isUnmatchableSeed(seed) {
   return seed.length <= 1 || /^\d+$/.test(seed);
 }
 
@@ -38,7 +42,7 @@ function toRange(match) {
   return { start: match.index, end: match.index + match[0].length };
 }
 
-function findExcludedSpans(blockString) {
+export function findExcludedSpans(blockString) {
   return EXCLUDED_SPAN_PATTERNS.flatMap((pattern) =>
     [...blockString.matchAll(pattern)].map(toRange),
   );

@@ -88,6 +88,8 @@ async function runFind(title, resultsEl) {
   await nextPaint();
   const seeds = await collectAliasSeeds(title);
   const candidates = await findUnlinkedCandidates(seeds, title);
+  // Bail if the user navigated away mid-scan (clearButton removed our UI).
+  if (!resultsEl.isConnected) return;
   session = { title, seeds, candidates, resultsEl, collapsed: new Set() };
   renderSession();
 }
